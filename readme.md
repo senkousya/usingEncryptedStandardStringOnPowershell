@@ -1,4 +1,4 @@
-﻿# 🔰Powershellで文字列の暗号化と復号化
+# 🔰Powershellで文字列の暗号化と復号化
 
 ## 🔰はじめに
 
@@ -106,14 +106,12 @@ write-host $StringPassword
 
 ## 🔰暗号化復号化をそれぞれ異なるユーザで行う場合
 
-ユーザ1が暗号化したファイルをユーザ2で復号化しようとすると。
-
+▶ユーザ1が暗号化したファイルをユーザ2で復号化しようとすると。  
 ![](image/SecureString.ConvertTo-SecureString.Error.png)
 
 **”指定された状態で使用するには無効なキーです”**　と怒られる。
 
-一応、Import-Clixmlを使ったケースも。
-
+▶一応、Import-Clixmlを使ったケースも。  
 ![](image\SecureString.Import-Clixml.Error.png)
 
 先に記載した通り、ConvertTo-SecureString/ConvertFrom-SecureStringはデフォルトでは[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)で暗号化していて、ユーザが変わると鍵が変わって復号化できなくなっていそうです。
