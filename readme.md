@@ -112,7 +112,7 @@ write-host $StringPassword
 **”指定された状態で使用するには無効なキーです”**　と怒られる。
 
 ▶一応、Import-Clixmlを使ったケースも。  
-![](image\SecureString.Import-Clixml.Error.png)
+![](image/SecureString.Import-Clixml.Error.png)
 
 先に記載した通り、ConvertTo-SecureString/ConvertFrom-SecureStringはデフォルトでは[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)で暗号化していて、ユーザが変わると鍵が変わって復号化できなくなっていそうです。
 
