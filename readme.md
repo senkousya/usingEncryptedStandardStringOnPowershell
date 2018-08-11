@@ -2,14 +2,14 @@
 
 ## 🔰はじめに
 
-Powershellにて平文でパスワード格納したくない！　って時に備えて暗号化と復号化の使い方。
+Powershellにてプレーンテキストでパスワード格納したくない！　って時に備えて暗号化と復号化の使い方。
 
 ここではPowershell標準で用意されているコマンドを利用してパスワードの暗号化と復号化を行います。
 
+なお下記ケースで手順が変わってくるのでそれぞれ順に説明します。
+
 - 暗号化復号化を同一ユーザで行う場合
 - 暗号化復号化をそれぞれ異なるユーザで行う場合
-
-上記のケースで手順が変わってくるのでそれぞれ説明します。
 
 ## 🔰今回使うPowershellコマンド
 
@@ -18,36 +18,36 @@ Powershellにて平文でパスワード格納したくない！　って時に�
 
 ### 💎ConvertFrom-SecureString
 
-SecureStringオブジェクトを**暗号化された標準文字列**に変換する。
+SecureStringオブジェクトを**暗号化された標準文字列（encrypted standard strings）**に変換する。
 
 ### 💎ConvertTo-SecureString
 
 **暗号化された標準化文字列**をSecureStringオブジェクトに変換する。
-また平文をSecureStringに変換することも出来る。
+また`AsPlainText`パラメータを利用してプレーンテキストをSecureStringに変換することも出来る。
 
 大まかな流れとしては、
 
-1. ConvertTo-SecureStringで平文をSecureStringに変換
-1. ConvertFrom-SecureStringでSecureStringを暗号化された標準化文字列に変換
-1. 暗号化された標準化文字列をファイルに出力
+1. `ConvertTo-SecureString`の`AsPlainText`を利用してプレーンテキストをSecureStringに変換
+2. `ConvertFrom-SecureString`でSecureStringを暗号化された標準化文字列に変換
+3. 暗号化された標準化文字列をファイルに出力
 
 ※後々関係してくるコマンドのポイント
 
-ConvertTo-SecureString/ConvertFrom-SecureStringはデフォルトでは[DPAPI(Data Protection Application Programming Interface)](https://ja.wikipedia.org/wiki/DPAPI)を利用して暗号化を行う。
-keyオプションを指定すると[AES](https://ja.wikipedia.org/wiki/Advanced_Encryption_Standard)で暗号化します。
+`ConvertTo-SecureString`/`ConvertFrom-SecureString`はデフォルトは[DPAPI(Data Protection Application Programming Interface)](https://ja.wikipedia.org/wiki/DPAPI)を利用して暗号化を行う。
+`key`オプションを指定すると[AES](https://ja.wikipedia.org/wiki/Advanced_Encryption_Standard)で暗号化します。
 
 ## 🔰暗号化復号化を同一ユーザで行う場合
 
 ### 💎暗号化の手順
 
-1. ConvertTo-SecureStringでプレーンテキストをSecureStringオブジェクトに変換。
-1. それをConvertFrom-SecureStringで暗号化された標準文字列に変換。
+1. `ConvertTo-SecureString`でプレーンテキストをSecureStringオブジェクトに変換。
+1. それを`ConvertFrom-SecureString`で暗号化された標準文字列に変換。
 1. 暗号化された標準文字列をエクスポート
 
 ### 💎復号化の手順
 
 1. 暗号化された標準文字列を読み込む。
-1. 暗号化された標準もい列をConvertTo-SecureStringでSecureStringオブジェクトに変換
+1. 暗号化された標準文字列を`ConvertTo-SecureString`でSecureStringオブジェクトに変換
 1. SecureStringからテキストを取得する※おまじないを唱える
 
 ※SecureStringからテキストを取得する場合は、SecureStringToBSTRとPtrToStringBSTRのおまじないで抜き出せます。
@@ -73,9 +73,9 @@ write-host $StringPassword
 
 ### 💎暗号化復号化を同一ユーザで行う場合の別手順
 
-ちなみにExport-Clixmlをつかっても、SecureStringを暗号化してエクスポートできたりする。
+ちなみに`Export-Clixml`をつかっても、SecureStringを暗号化してエクスポートできたりする。
 
-これはExport-ClixmlではSecureStringをデフォルトでDPAPIを使い暗号化してエクスポートしてくれるため。
+これは`Export-Clixml`ではSecureStringをデフォルトでDPAPIを使い暗号化してエクスポートしてくれるため。
 
 - [Export-Clixmlのドキュメント](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/export-clixml?view=powershell-5.1)
 
@@ -83,7 +83,7 @@ write-host $StringPassword
 
 >The Export-Clixml cmdlet encrypts credential objects by using the Windows Data Protection API http://msdn.microsoft.com/library/windows/apps/xaml/hh464970.aspx. This ensures that only your user account can decrypt the contents of the credential object.
 
-Export-Clixmlを使って書き出したファイルはImport-Clixmlを使って読み出せばSecureStringを復号化してインポートしてくれる。
+`Export-Clixml`を使って書き出したファイルは`Import-Clixml`を使って読み出せばSecureStringを復号化してインポートしてくれる。
 
 ```powershell
 
@@ -114,7 +114,7 @@ write-host $StringPassword
 ▶一応、Import-Clixmlを使ったケースも。  
 ![](image/SecureString.Import-Clixml.Error.png)
 
-先に記載した通り、ConvertTo-SecureString/ConvertFrom-SecureStringはデフォルトでは[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)で暗号化していて、ユーザが変わると鍵が変わって復号化できなくなっていそうです。
+先に記載した通り、`ConvertTo-SecureString`/`ConvertFrom-SecureString`はデフォルトでは[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)で暗号化していて、ユーザが変わると鍵が変わって復号化できなくなっていそうです。
 
 DPAPIの仕組みは[Windows Data Protection](https://msdn.microsoft.com/en-us/library/ms995355?ranMID=24542&ranEAID=TnL5HPStwNw&ranSiteID=TnL5HPStwNw-_dd1jHC7tQSU.O2i7vnSww&tduid=(934de9902a1a743779577e464f5b7639)(256380)(2459594)(TnL5HPStwNw-_dd1jHC7tQSU.O2i7vnSww)())に記載があるようですがかなり複雑。
 
@@ -122,11 +122,11 @@ DPAPIの仕組みは[Windows Data Protection](https://msdn.microsoft.com/en-us/l
 
 ともかくこのようなケースでの解決方法としては、[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)を利用せずに[AES](https://ja.wikipedia.org/wiki/Advanced_Encryption_Standard)で暗号化すればOK。
 
-ConvertFrom-SecureStringではkeyオプションを指定すると、[AES](https://ja.wikipedia.org/wiki/Advanced_Encryption_Standard)を利用して暗号化された標準文字列に変換してくれます。
+`ConvertFrom-SecureString`ではkeyオプションを指定すると、[AES](https://ja.wikipedia.org/wiki/Advanced_Encryption_Standard)を利用して暗号化された標準文字列に変換してくれます。
 
 サンプルとしては下記。
 
-### 💎暗号化サンプル
+### 💎AESでの暗号化サンプル
 
 ```powershell
 
@@ -151,7 +151,9 @@ $encrypted | Out-File c:\temp\encrypted.txt
 
 今回はkeyに192bitのバイト配列(8bit*24)を設定したが、設定できるkey長は128,192,256bit。
 
-また.netのSecurity.Cryptography.RNGCryptoServiceProviderクラスにバイト配列をランダムなデータで埋めてくれるやつがあるので下記のようにkeyを生成できたりもする。
+また.netのSecurity.Cryptography.RNGCryptoServiceProviderクラスにバイト配列をランダムなデータで埋めてくれるやつがあるので、これを利用して下記のようにkeyを生成できたりもする。
+
+生成された$EncryptedKeyは適宜適切な方法で管理して下さい。
 
 ```Powershell
 #8*24で192bitのバイト配列を作成
@@ -159,9 +161,14 @@ $EncryptedKey = New-Object Byte[] 24
 
 #RNGCryptoServiceProviderクラスをcreateしてGetBytesメソッドでバイト配列をランダムなデータで埋める。
 [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($EncryptedKey)
+
+#作成されたランダムな配列を表示
+$EncryptedKey
 ```
 
-### 💎復号化サンプル
+### 💎AESでの復号化サンプル
+
+先程、暗号化に使用した$EncryptedKeyを用いて復号化を行うサンプル。
 
 ```powershell
 #ユーザ2での復号
@@ -182,7 +189,7 @@ write-host $StringPassword
 
 ## 🔰総評
 
-ConvertFrom-SecureString/ConvertTo-SecureStringは標準では[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)で暗号化するってのは知っておいたほうが良い。
+`ConvertFrom-SecureString`/`ConvertTo-SecureString`は標準では[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)で暗号化するってのは知っておいたほうが良い。
 
 意識してないと復号化できなくてエラーなんて自体を起こしてしまう事もあるかもしれません。
 
