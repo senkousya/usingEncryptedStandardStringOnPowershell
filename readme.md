@@ -1,17 +1,24 @@
-# 🔰Powershellで文字列の暗号化と復号化
+# 🔰Windows PowerShellで文字列の暗号化と復号化
 
 ## 🔰はじめに
 
-Powershellにてプレーンテキストでパスワード格納したくない！　って時に備えて暗号化と復号化の使い方。
+Windows PowerShellにてプレーンテキストでパスワード格納したくない！　って時に備えて暗号化と復号化の使い方。
 
-ここではPowershell標準で用意されているコマンドを利用してパスワードの暗号化と復号化を行います。
+ここではWidnows PowerShell標準で用意されているコマンドを利用してパスワードの暗号化と復号化を行います。
 
 なお下記ケースで手順が変わってくるのでそれぞれ順に説明します。
 
 - 暗号化復号化を同一ユーザで行う場合
 - 暗号化復号化をそれぞれ異なるユーザで行う場合
 
-## 🔰今回使うPowershellコマンド
+あくまでWindows PowerShellでありPowerShell Coreではないので注意。
+PowerShell CoreでのSecureStringについては下記ブログがとても参考になります。
+
+[DevelopersIO - PowerShell CoreのSecureStringについて](https://dev.classmethod.jp/server-side/pscore-securestring-problem/)
+
+記事中でもふれられていますが、.NetFrameworkのSecureStringクラスって利用が非推奨になってたんですね……知りませんでした。
+
+## 🔰今回使うWindows PowerShellコマンド
 
 - [ConvertFrom-SecureString](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/convertfrom-securestring?view=powershell-5.1)
 - [ConvertTo-SecureString](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/convertto-securestring?view=powershell-5.1)
@@ -151,11 +158,11 @@ $encrypted | Out-File c:\temp\encrypted.txt
 
 今回はkeyに192bitのバイト配列(8bit*24)を設定したが、設定できるkey長は128,192,256bit。
 
-また.netのSecurity.Cryptography.RNGCryptoServiceProviderクラスにバイト配列をランダムなデータで埋めてくれるやつがあるので、これを利用して下記のようにkeyを生成できたりもする。
+また.NetFrameworkのSecurity.Cryptography.RNGCryptoServiceProviderクラスにバイト配列をランダムなデータで埋めてくれるやつがあるので、これを利用して下記のようにkeyを生成できたりもする。
 
 生成された$EncryptedKeyは適宜適切な方法で管理して下さい。
 
-```Powershell
+```powershell
 #8*24で192bitのバイト配列を作成
 $EncryptedKey = New-Object Byte[] 24
 
