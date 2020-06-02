@@ -4,32 +4,32 @@
 
 Windows PowerShellにてプレーンテキストでパスワード格納したくない！　って時に備えて暗号化と復号化の使い方。
 
-ここではWidnows PowerShell標準で用意されているコマンドを利用してパスワードの暗号化と復号化を行います。
+ここではWidnows PowerShell標準で用意されているコマンドレットを利用してパスワードの暗号化と復号化を行います。
 
 なお下記ケースで手順が変わってくるのでそれぞれ順に説明します。
 
 - 暗号化復号化を同一ユーザで行う場合
 - 暗号化復号化をそれぞれ異なるユーザで行う場合
 
-あくまでWindows PowerShellでありPowerShell Coreではないので注意。
+あくまでWindows PowerShellでありクロスプラットフォームなPowerShell Coreではないので注意。
 PowerShell CoreでのSecureStringについては下記ブログがとても参考になります。
 
 [DevelopersIO - PowerShell CoreのSecureStringについて](https://dev.classmethod.jp/server-side/pscore-securestring-problem/)
 
 記事中でもふれられていますが、.NetFrameworkのSecureStringクラスって利用が非推奨になってたんですね……知りませんでした。
 
-## 🔰今回使うWindows PowerShellコマンド
+## 🔰今回使うWindows PowerShellコマンドレット
 
 - [ConvertFrom-SecureString](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/convertfrom-securestring?view=powershell-5.1)
 - [ConvertTo-SecureString](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/convertto-securestring?view=powershell-5.1)
 
 ### 💎ConvertFrom-SecureString
 
-SecureStringオブジェクトを**暗号化された標準文字列（encrypted standard strings）**に変換する。
+SecureStringオブジェクトを　**暗号化された標準文字列（encrypted standard strings）**　に変換する。
 
 ### 💎ConvertTo-SecureString
 
-**暗号化された標準化文字列**をSecureStringオブジェクトに変換する。
+**暗号化された標準化文字列**　をSecureStringオブジェクトに変換する。
 また`AsPlainText`パラメータを利用してプレーンテキストをSecureStringに変換することも出来る。
 
 大まかな流れとしては、
@@ -38,10 +38,10 @@ SecureStringオブジェクトを**暗号化された標準文字列（encrypted
 2. `ConvertFrom-SecureString`でSecureStringを暗号化された標準化文字列に変換
 3. 暗号化された標準化文字列をファイルに出力
 
-※後々関係してくるコマンドのポイント
+※後々関係してくるコマンドレットのポイント
 
-`ConvertTo-SecureString`/`ConvertFrom-SecureString`はデフォルトは[DPAPI(Data Protection Application Programming Interface)](https://ja.wikipedia.org/wiki/DPAPI)を利用して暗号化を行う。
-`key`オプションを指定すると[AES](https://ja.wikipedia.org/wiki/Advanced_Encryption_Standard)で暗号化します。
+`ConvertTo-SecureString`/`ConvertFrom-SecureString`はデフォルトで[DPAPI(Data Protection Application Programming Interface)](https://ja.wikipedia.org/wiki/DPAPI)を利用して暗号化を行います。
+また`key`オプションを指定すると[AES](https://ja.wikipedia.org/wiki/Advanced_Encryption_Standard)で暗号化します。
 
 ## 🔰暗号化復号化を同一ユーザで行う場合
 
@@ -80,7 +80,7 @@ write-host $StringPassword
 
 ### 💎暗号化復号化を同一ユーザで行う場合の別手順
 
-ちなみに`Export-Clixml`をつかっても、SecureStringを暗号化してエクスポートできたりする。
+上記で説明した手順とは別に、`Export-Clixml`を利用してもSecureStringを暗号化してエクスポートできます。
 
 これは`Export-Clixml`ではSecureStringをデフォルトでDPAPIを使い暗号化してエクスポートしてくれるため。
 
@@ -97,7 +97,7 @@ write-host $StringPassword
 #プレーンテキストをSecureStringに変換
 $SecureString = ConvertTo-SecureString -string "password1234" -AsPlainText -Force
 #Export-Clixmlでエクスポート。
-#このコマンドはSecureStringをDPAPIで暗号化してセキュアにエクスポートしてくれる。
+#このコマンドレットはSecureStringをDPAPIで暗号化してセキュアにエクスポートしてくれる。
 $SecureString | Export-Clixml c:\temp\encrypted.xml
 
 #暗号化されて格納されたデータをImport-Clixmlでインポート
@@ -113,7 +113,7 @@ write-host $StringPassword
 
 ## 🔰暗号化復号化をそれぞれ異なるユーザで行う場合
 
-▶ユーザ1が暗号化したファイルをユーザ2で復号化しようとすると。  
+▶ユーザ1が暗号化したファイルをユーザ2で復号化すると。  
 ![](image/SecureString.ConvertTo-SecureString.Error.png)
 
 **”指定された状態で使用するには無効なキーです”**　と怒られる。
@@ -156,9 +156,9 @@ $encrypted | Out-File c:\temp\encrypted.txt
 
 ```
 
-今回はkeyに192bitのバイト配列(8bit*24)を設定したが、設定できるkey長は128,192,256bit。
+今回はkeyに192bitのバイト配列（8bit*24）を設定したが、設定できるkey長は128,192,256bit。
 
-また.NetFrameworkのSecurity.Cryptography.RNGCryptoServiceProviderクラスにバイト配列をランダムなデータで埋めてくれるやつがあるので、これを利用して下記のようにkeyを生成できたりもする。
+また.NetFrameworkのSecurity.Cryptography.RNGCryptoServiceProviderクラスにバイト配列をランダムなデータで埋めてくれるメソッドがあるので、これを利用して下記のようにkeyを生成できたりもする。
 
 生成された$EncryptedKeyは適宜適切な方法で管理して下さい。
 
@@ -196,10 +196,10 @@ write-host $StringPassword
 
 ## 🔰総評
 
-`ConvertFrom-SecureString`/`ConvertTo-SecureString`は標準では[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)で暗号化するってのは知っておいたほうが良い。
+`ConvertFrom-SecureString`/`ConvertTo-SecureString`を利用する場合、標準で[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)を用いて暗号化するってのは知っておいたほうが良い。
 
-意識してないと復号化できなくてエラーなんて自体を起こしてしまう事もあるかもしれません。
+意識してないと復号化できなくてエラーなんて事態を起こしてしまう事もあるかもしれません。
 
-[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)を利用しない場合は、[AES](https://ja.wikipedia.org/wiki/Advanced_Encryption_Standard)を利用することになるが、暗号化に利用するバイト配列(EncryptedKey)をどのように扱うのがいいかは少し悩む所ですね。
+[DPAPI](https://ja.wikipedia.org/wiki/DPAPI)を利用しない場合は、[AES](https://ja.wikipedia.org/wiki/Advanced_Encryption_Standard)を利用することになるが、暗号化に利用するバイト配列（EncryptedKey）をどのように扱うのがいいかは少し悩む所です。
 
 誰でもアクセスできる所に置いておくのは論外ですし、復号化出来るユーザだけが読める領域に格納するってのもまた一手間かかりますし。
